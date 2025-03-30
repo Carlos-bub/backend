@@ -1,4 +1,5 @@
 const { PrismaClient } = require('@prisma/client');
+const emailService = require('./emailService');
 const prisma = new PrismaClient();
 
 const criar = async (dados) => {
@@ -45,10 +46,34 @@ const listarTodos = async () => {
 };
 
 const atualizarStatus = async (id, status) => {
-  return await prisma.agendamento.update({
+  const agendamento = await prisma.agendamento.update({
     where: { id },
     data: { status },
   });
+
+  try {
+    // Envia email baseado no novo status
+    if (status === 'confirmado') {
+      await emailService.enviarEmailConfirmacao(
+        agendamento.email,
+        agendamento.nome,
+        agendamento.data,
+        agendamento.hora
+      );
+    } else if (status === 'cancelado') {
+      await emailService.enviarEmailCancelamento(
+        agendamento.email,
+        agendamento.nome,
+        agendamento.data,
+        agendamento.hora
+      );
+    }
+  } catch (error) {
+    console.error('Erro ao enviar email:', error);
+    // Não lançamos o erro para não impedir a atualização do status
+  }
+
+  return agendamento;
 };
 
 const deletar = async (id) => {
