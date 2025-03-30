@@ -20,21 +20,31 @@ console.log('Configuração de Email:', {
     user: process.env.EMAIL_USER
 });
 
-// Formatar data para o email
-const formatarData = (data) => {
-    return new Date(data).toLocaleDateString('pt-BR', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric'
-    });
-};
-
 // Formatar hora para o email
 const formatarHora = (hora) => {
-    return new Date(hora).toLocaleTimeString('pt-BR', {
+    // Converte para o fuso horário local (Brasil)
+    const dataHora = new Date(hora);
+    const fusoHorarioBrasil = 'America/Sao_Paulo';
+    
+    return new Intl.DateTimeFormat('pt-BR', {
         hour: '2-digit',
-        minute: '2-digit'
-    });
+        minute: '2-digit',
+        timeZone: fusoHorarioBrasil
+    }).format(dataHora);
+};
+
+// Formatar data para o email
+const formatarData = (data) => {
+    // Converte para o fuso horário local (Brasil)
+    const dataObj = new Date(data);
+    const fusoHorarioBrasil = 'America/Sao_Paulo';
+    
+    return new Intl.DateTimeFormat('pt-BR', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        timeZone: fusoHorarioBrasil
+    }).format(dataObj);
 };
 
 // Enviar email de confirmação

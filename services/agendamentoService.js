@@ -8,13 +8,17 @@ const criar = async (dados) => {
   if (!nome || !email || !telefone || !servico || !data || !hora)
     throw new Error('Campos obrigatórios ausentes');
 
-  const dataHora = new Date(hora); // hora é a data+hora completa
-  const dataAgendamento = new Date(data + 'T00:00:00-03:00'); // Garante que a data está no timezone correto
+  // Ajusta o fuso horário para Brasília
+  const fusoHorarioBrasil = 'America/Sao_Paulo';
+  const dataHora = new Date(hora);
+  const dataAgendamento = new Date(data + 'T00:00:00-03:00');
 
   // 🔒 Verificar conflito
   const conflito = await prisma.agendamento.findFirst({
     where: {
-      hora: dataHora,
+      hora: {
+        equals: dataHora
+      },
       status: {
         notIn: ['cancelado']
       }
@@ -25,6 +29,7 @@ const criar = async (dados) => {
     throw new Error('Já existe um agendamento para este horário');
   }
 
+  // Salva o agendamento com o horário correto
   return await prisma.agendamento.create({
     data: {
       nome,
@@ -33,7 +38,7 @@ const criar = async (dados) => {
       servico,
       data: dataAgendamento,
       hora: dataHora,
-      status: 'pendente', // Define status inicial
+      status: 'pendente'
     },
   });
 };
