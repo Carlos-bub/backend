@@ -12,6 +12,14 @@ const transporter = nodemailer.createTransport({
     }
 });
 
+// Log da configuração (sem senha)
+console.log('Configuração de Email:', {
+    service: process.env.EMAIL_SERVICE,
+    host: process.env.EMAIL_HOST,
+    port: process.env.EMAIL_PORT,
+    user: process.env.EMAIL_USER
+});
+
 // Formatar data para o email
 const formatarData = (data) => {
     return new Date(data).toLocaleDateString('pt-BR', {
@@ -31,6 +39,13 @@ const formatarHora = (hora) => {
 
 // Enviar email de confirmação
 const enviarEmailConfirmacao = async (email, nome, data, hora) => {
+    console.log('Tentando enviar email de confirmação para:', {
+        para: email,
+        nome: nome,
+        data: formatarData(data),
+        hora: formatarHora(hora)
+    });
+
     const mailOptions = {
         from: process.env.EMAIL_USER,
         to: email,
@@ -55,16 +70,32 @@ const enviarEmailConfirmacao = async (email, nome, data, hora) => {
     };
 
     try {
-        await transporter.sendMail(mailOptions);
-        console.log('Email de confirmação enviado para:', email);
+        const info = await transporter.sendMail(mailOptions);
+        console.log('Email de confirmação enviado com sucesso:', {
+            messageId: info.messageId,
+            para: email,
+            resposta: info.response
+        });
     } catch (error) {
-        console.error('Erro ao enviar email de confirmação:', error);
+        console.error('Erro detalhado ao enviar email de confirmação:', {
+            erro: error.message,
+            codigo: error.code,
+            comando: error.command,
+            para: email
+        });
         throw error;
     }
 };
 
 // Enviar email de cancelamento
 const enviarEmailCancelamento = async (email, nome, data, hora) => {
+    console.log('Tentando enviar email de cancelamento para:', {
+        para: email,
+        nome: nome,
+        data: formatarData(data),
+        hora: formatarHora(hora)
+    });
+
     const mailOptions = {
         from: process.env.EMAIL_USER,
         to: email,
@@ -89,10 +120,19 @@ const enviarEmailCancelamento = async (email, nome, data, hora) => {
     };
 
     try {
-        await transporter.sendMail(mailOptions);
-        console.log('Email de cancelamento enviado para:', email);
+        const info = await transporter.sendMail(mailOptions);
+        console.log('Email de cancelamento enviado com sucesso:', {
+            messageId: info.messageId,
+            para: email,
+            resposta: info.response
+        });
     } catch (error) {
-        console.error('Erro ao enviar email de cancelamento:', error);
+        console.error('Erro detalhado ao enviar email de cancelamento:', {
+            erro: error.message,
+            codigo: error.code,
+            comando: error.command,
+            para: email
+        });
         throw error;
     }
 };
